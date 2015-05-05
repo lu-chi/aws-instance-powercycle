@@ -17,7 +17,7 @@ function aws_ids() {
 
     for instance_id in $(aws ec2 describe-instances --query 'Reservations[*].Instances[*].InstanceId' --output text ) 
     do
-        echo "Instance ${instance_id} status: $(aws ec2 describe-instances --instance-ids $instance_id --query 'Reservations[*].Instances[*].State.Name' --output text)"
+        echo "Instance ${instance_id} status: $(aws ec2 describe-instances --instance-ids ${instance_id} --query 'Reservations[*].Instances[*].State.Name' --output text)"
     done
 } 
 
@@ -25,13 +25,13 @@ function aws_ids() {
 
 function file_ids() {
 
-    local _file=$1
+    local _file=${1}
 
     while read line
     do
         instance_id=$(echo ${line} | grep -o "i-[a-f0-9]\{8\}")  
         tag_name=$(aws ec2 describe-instances --instance-ids ${instance_id} --query 'Reservations[].Instances[].[Tags[?Key==`Name`].Value]' --output text)
-        echo "Instance ${instance_id} | ${tag_name} | status: $(aws ec2 describe-instances --instance-ids $instance_id --query 'Reservations[*].Instances[*].State.Name' --output text)"
+        echo "Instance ${instance_id} | ${tag_name} | status: $(aws ec2 describe-instances --instance-ids ${instance_id} --query 'Reservations[*].Instances[*].State.Name' --output text)"
     done < <(grep -Ev "#" ${_file})
 }
 
@@ -40,7 +40,7 @@ function getStatus() {
 #   [ -z $1 ] && { echo "No argument given. Exitting..."; exit 1; }
     local _id=${1}
     
-    retStatus=$(aws ec2 describe-instances --instance-ids $_id --output text --query 'Reservations[*].Instances[*].State.Name')
+    retStatus=$(aws ec2 describe-instances --instance-ids ${_id} --output text --query 'Reservations[*].Instances[*].State.Name')
     echo ${retStatus}
 }
 
